@@ -1,0 +1,238 @@
+.record-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    position: relative;
+}
+
+.camera-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.camera-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pose-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.position-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.guide-silhouette {
+    width: 120px;
+    height: 180px;
+    opacity: 0.6;
+}
+
+.guide-text {
+    color: white;
+    font-size: 0.9rem;
+    margin-top: var(--space-md);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.status-bar {
+    position: absolute;
+    top: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-xs) var(--space-md);
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius-full);
+    color: white;
+    font-size: 0.8rem;
+}
+
+.fps-display {
+    color: #00ff00;
+    font-family: monospace;
+}
+
+.loading-text {
+    animation: pulse 1.5s infinite;
+}
+
+.controls-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.back-button,
+.flip-button {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-full);
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+}
+
+.record-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.record-button {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-full);
+    background: white;
+    border: 4px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.record-button:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.record-button:disabled {
+    opacity: 0.5;
+}
+
+.rec-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--color-danger);
+    border-radius: var(--radius-full);
+}
+
+.stop-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--color-danger);
+    border-radius: 4px;
+}
+
+.record-button.recording {
+    border-color: var(--color-danger);
+    animation: recordPulse 1s infinite;
+}
+
+@keyframes recordPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 12px rgba(229, 62, 62, 0);
+    }
+}
+
+.duration-display {
+    color: white;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.recording-indicator {
+    position: absolute;
+    top: var(--space-lg);
+    left: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-md);
+    background: var(--color-danger);
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+}
+
+.rec-dot {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: var(--radius-full);
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.orientation-warning {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: var(--space-md);
+    background: var(--color-warning);
+    color: #744210;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.rotate-icon {
+    font-size: 1.5rem;
+}
+
+.error-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    color: white;
+    text-align: center;
+    gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+    .controls-container {
+        padding: var(--space-xl);
+    }
+
+    .record-button {
+        width: 80px;
+        height: 80px;
+    }
+}
