@@ -26,7 +26,6 @@ export default function UploadPage() {
     const [conversionProgress, setConversionProgress] = useState(0);
     const [currentTrial, setCurrentTrial] = useState(0);
     const [totalTrials] = useState(5);
-    const [usageLimitExceeded, setUsageLimitExceeded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -192,7 +191,7 @@ export default function UploadPage() {
         canvas: HTMLCanvasElement,
         poseLandmarker: PoseLandmarker,
         drawingUtils: DrawingUtils,
-        trialNumber: number,
+        _trialNumber: number,
         shouldRecord: boolean
     ): Promise<FrameData[]> => {
         const recordedFrames: FrameData[] = [];
@@ -325,7 +324,6 @@ export default function UploadPage() {
         if (user) {
             const usageCheck = await canAnalyze(user.id);
             if (!usageCheck.allowed) {
-                setUsageLimitExceeded(true);
                 setError(`今月の無料利用回数（${FREE_MONTHLY_LIMIT}回）を使い切りました。プレミアムプランにアップグレードして無制限でご利用ください。`);
                 return;
             }
@@ -334,7 +332,6 @@ export default function UploadPage() {
         setIsAnalyzing(true);
         setProgress(0);
         setError(null);
-        setUsageLimitExceeded(false);
         setRecordedVideoUrl(null);
         setCurrentTrial(0);
 
@@ -357,7 +354,7 @@ export default function UploadPage() {
                 }
             });
 
-            const duration = video.duration;
+            const _duration = video.duration;
 
             // Setup canvas
             canvas.width = video.videoWidth;
@@ -469,7 +466,7 @@ export default function UploadPage() {
                 , 0);
 
             const bestFrames = allTrialFrames[bestTrialIndex];
-            const bestResult = allTrialResults[bestTrialIndex];
+            const _bestResult = allTrialResults[bestTrialIndex];
 
             console.log(`[Analysis Summary] Best trial: ${bestTrialIndex + 1}/${totalTrials}`);
             console.log(`[Analysis Summary] Total successful trials: ${allTrialResults.length}`);

@@ -35,7 +35,7 @@ export default function RecordPage() {
 
     // Start camera on mount
     useEffect(() => {
-        let isMounted = true;
+        let _isMounted = true;
 
         const initCamera = async () => {
             await startCamera();
@@ -44,7 +44,7 @@ export default function RecordPage() {
         initCamera();
 
         return () => {
-            isMounted = false;
+            _isMounted = false;
             stopDetection();
             stopCamera();
         };
@@ -111,14 +111,14 @@ export default function RecordPage() {
             {/* Camera preview */}
             <div className="camera-container">
                 <video
-                    ref={videoRef}
+                    ref={videoRef as React.RefObject<HTMLVideoElement>}
                     autoPlay
                     playsInline
                     muted
                     className="camera-video"
                 />
                 <canvas
-                    ref={canvasRef}
+                    ref={canvasRef as React.RefObject<HTMLCanvasElement>}
                     className="pose-overlay"
                 />
 

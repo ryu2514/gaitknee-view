@@ -283,7 +283,7 @@ export default function ResultsPage() {
                                 data={lateralThrust.rightKnee.waveform}
                                 severity={lateralThrust.rightKnee.severity}
                                 gaitCycles={analysis.gaitCycles.filter(c => c.leg === 'right')}
-                                leg="right"
+                                _leg="right"
                             />
                             <div className="waveform-stats">
                                 <span>振幅: <strong>{lateralThrust.rightKnee.amplitude} cm</strong></span>
@@ -302,7 +302,7 @@ export default function ResultsPage() {
                                 data={lateralThrust.leftKnee.waveform}
                                 severity={lateralThrust.leftKnee.severity}
                                 gaitCycles={analysis.gaitCycles.filter(c => c.leg === 'left')}
-                                leg="left"
+                                _leg="left"
                             />
                             <div className="waveform-stats">
                                 <span>振幅: <strong>{lateralThrust.leftKnee.amplitude} cm</strong></span>
@@ -460,12 +460,12 @@ function WaveformChart({
     data,
     severity,
     gaitCycles = [],
-    leg
+    _leg
 }: {
     data: number[];
     severity: string;
     gaitCycles?: GaitCycle[];
-    leg: 'left' | 'right'
+    _leg: 'left' | 'right'
 }) {
     if (data.length === 0) return <div className="waveform-empty">データなし</div>;
 

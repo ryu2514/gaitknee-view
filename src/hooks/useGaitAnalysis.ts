@@ -123,8 +123,8 @@ function smoothSignal(signal: number[], windowSize: number): number[] {
     return smoothed;
 }
 
-// Helper: Calculate adaptive threshold
-function calculateAdaptiveThreshold(signal: number[]): number {
+// Helper: Calculate adaptive threshold (reserved for future use)
+function _calculateAdaptiveThreshold(signal: number[]): number {
     const sorted = [...signal].sort((a, b) => a - b);
     const percentile75 = sorted[Math.floor(sorted.length * 0.75)];
     const percentile25 = sorted[Math.floor(sorted.length * 0.25)];
@@ -137,7 +137,7 @@ function calculateAdaptiveThreshold(signal: number[]): number {
 function processLegPhases(
     ankleY: number[],
     velocity: number[],
-    kneeY: number[],
+    _kneeY: number[],
     threshold: number,
     hysteresis: number,
     minDuration: number,
@@ -182,9 +182,9 @@ function processLegPhases(
     }
 }
 
-// Helper: Calculate angle from vertical axis (in degrees)
+// Helper: Calculate angle from vertical axis (in degrees) - reserved for future use
 // Returns positive angle for lateral deviation
-function calculateAngleFromVertical(
+function _calculateAngleFromVertical(
     proximal: { x: number; y: number },
     distal: { x: number; y: number }
 ): number {
@@ -340,7 +340,7 @@ function calculateThrustMetrics(
 }
 
 // Detect detailed gait cycles with 8 phases (Rancho Los Amigos)
-function detectGaitCycles(stancePhases: StancePhase[], totalFrames: number): GaitCycle[] {
+function detectGaitCycles(stancePhases: StancePhase[], _totalFrames: number): GaitCycle[] {
     const cycles: GaitCycle[] = [];
 
     // Group stance phases by leg
@@ -380,7 +380,7 @@ function detectGaitCycles(stancePhases: StancePhase[], totalFrames: number): Gai
 function subdivideGaitCycle(
     cycleStart: number,
     cycleEnd: number,
-    toeOff: number,
+    _toeOff: number,
     leg: 'left' | 'right'
 ): GaitPhase[] {
     const cycleDuration = cycleEnd - cycleStart;

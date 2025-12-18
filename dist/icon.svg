@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#1a365d"/>
+  <g transform="translate(256, 256)">
+    <!-- Stick figure -->
+    <circle cx="0" cy="-120" r="30" fill="#ffffff"/>
+    <line x1="0" y1="-90" x2="0" y2="20" stroke="#ffffff" stroke-width="12"/>
+    <line x1="0" y1="-50" x2="-50" y2="-10" stroke="#ffffff" stroke-width="10"/>
+    <line x1="0" y1="-50" x2="50" y2="-10" stroke="#ffffff" stroke-width="10"/>
+    <line x1="0" y1="20" x2="-40" y2="100" stroke="#ffffff" stroke-width="10"/>
+    <line x1="0" y1="20" x2="40" y2="100" stroke="#ffffff" stroke-width="10"/>
+    <line x1="-40" y1="100" x2="-50" y2="160" stroke="#ffffff" stroke-width="10"/>
+    <line x1="40" y1="100" x2="50" y2="160" stroke="#ffffff" stroke-width="10"/>
+    <!-- Knee highlight -->
+    <circle cx="40" cy="100" r="25" fill="#ff6b6b" opacity="0.6"/>
+    <circle cx="40" cy="100" r="15" fill="#ff0000"/>
+    <!-- Arrow -->
+    <path d="M 50 100 L 90 100 L 80 90 M 90 100 L 80 110" stroke="#ffd93d" stroke-width="6" fill="none"/>
+  </g>
+  <text x="256" y="480" font-size="48" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold">GaitKnee</text>
+</svg>
