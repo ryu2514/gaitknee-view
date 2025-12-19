@@ -96,6 +96,20 @@ export default function UploadPage() {
         loadFFmpeg();
     }, []);
 
+    // Warn user when trying to leave during analysis
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isAnalyzing) {
+                e.preventDefault();
+                e.returnValue = '解析中です。ページを離れると解析が中断されます。';
+                return e.returnValue;
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isAnalyzing]);
+
     // Clean up URL on unmount
     useEffect(() => {
         return () => {
