@@ -76,6 +76,15 @@
     gap: var(--space-xs);
 }
 
+.login-form .form-row {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.login-form .form-group.half {
+    flex: 1;
+}
+
 .login-form label {
     font-size: 0.9rem;
     font-weight: 600;

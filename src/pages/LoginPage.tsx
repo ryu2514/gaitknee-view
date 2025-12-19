@@ -11,6 +11,8 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [firstName, setFirstName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
@@ -22,6 +24,11 @@ export default function LoginPage() {
 
         if (!email || !password) {
             setError('メールアドレスとパスワードを入力してください');
+            return;
+        }
+
+        if (!isLogin && (!lastName || !firstName)) {
+            setError('姓と名を入力してください');
             return;
         }
 
@@ -50,7 +57,7 @@ export default function LoginPage() {
                     navigate('/');
                 }
             } else {
-                const { error } = await signUp(email, password);
+                const { error } = await signUp(email, password, lastName, firstName);
                 if (error) {
                     setError(error.message);
                 } else {
@@ -114,17 +121,43 @@ export default function LoginPage() {
                         </div>
 
                         {!isLogin && (
-                            <div className="form-group">
-                                <label htmlFor="confirmPassword">パスワード確認</label>
-                                <input
-                                    type="password"
-                                    id="confirmPassword"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="パスワードを再入力"
-                                    disabled={loading}
-                                />
-                            </div>
+                            <>
+                                <div className="form-row">
+                                    <div className="form-group half">
+                                        <label htmlFor="lastName">姓</label>
+                                        <input
+                                            type="text"
+                                            id="lastName"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            placeholder="山田"
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                    <div className="form-group half">
+                                        <label htmlFor="firstName">名</label>
+                                        <input
+                                            type="text"
+                                            id="firstName"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            placeholder="太郎"
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="confirmPassword">パスワード確認</label>
+                                    <input
+                                        type="password"
+                                        id="confirmPassword"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="パスワードを再入力"
+                                        disabled={loading}
+                                    />
+                                </div>
+                            </>
                         )}
 
                         {error && <div className="error-message">{error}</div>}
