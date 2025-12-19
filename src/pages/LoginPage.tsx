@@ -137,7 +137,7 @@ export default function LoginPage() {
 
                     <div className="login-info">
                         <p>📊 月5回まで無料で解析できます</p>
-                        <p>⭐ プレミアムプランで無制限に</p>
+                        <p>⭐ クレジットパックで追加利用可能</p>
                     </div>
                 </div>
             </div>
