@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import LandingPage from './pages/LandingPage'
 import HomePage from './pages/HomePage'
 import RecordPage from './pages/RecordPage'
 import ResultsPage from './pages/ResultsPage'
@@ -32,8 +33,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
     return (
         <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={
+            <Route path="/home" element={
                 <ProtectedRoute>
                     <HomePage />
                 </ProtectedRoute>

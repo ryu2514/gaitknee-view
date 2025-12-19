@@ -47,7 +47,7 @@ export default function LoginPage() {
                         setError(error.message);
                     }
                 } else {
-                    navigate('/');
+                    navigate('/home');
                 }
             } else {
                 const { error } = await signUp(email, password);
