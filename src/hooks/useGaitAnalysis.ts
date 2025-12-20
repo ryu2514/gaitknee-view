@@ -284,7 +284,7 @@ function calculateThrustMetrics(
     }
 
     // Apply smoothing to the waveform for more stable results
-    const smoothedWaveform = smoothSignal(waveform, 5);
+    const smoothedWaveform = smoothSignal(waveform, 9);
 
     // Calculate amplitude from stance phase data only (using smoothed waveform)
     let maxAmplitude = 0;
