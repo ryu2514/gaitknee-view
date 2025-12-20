@@ -28,7 +28,7 @@ export default function HomePage() {
                 <div className="usage-card">
                     <div className="usage-header">
                         <span className="usage-label">📊 歩行分析クレジット</span>
-                        {usage?.isPremium && <span className="premium-badge">⭐ プレミアム</span>}
+                        {usage?.isPremium && <span className="premium-badge">👑 管理者</span>}
                     </div>
                     <div className="usage-display">
                         {usage?.isPremium ? (
