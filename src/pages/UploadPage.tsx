@@ -210,121 +210,97 @@ export default function UploadPage() {
     ): Promise<FrameData[]> => {
         const recordedFrames: FrameData[] = [];
         const duration = video.duration;
+        const frameInterval = 0.1; // Fixed interval: 10 fps for consistent sampling
+        const totalFrames = Math.floor(duration / frameInterval);
 
         // Reset video to start
         video.currentTime = 0;
-        video.playbackRate = 1.0;
+        video.pause();
 
-        let lastProcessedTime = -1;
-        let processingComplete = false;
-        const minFrameInterval = 1 / 15; // Process max 15 fps
+        const ctx = canvas.getContext('2d')!;
 
-        // Process frames during playback
-        const processFrame = () => {
-            if (processingComplete) return;
+        // Helper function to wait for video to seek
+        const seekAndWait = (time: number): Promise<void> => {
+            return new Promise((resolve) => {
+                const onSeeked = () => {
+                    video.removeEventListener('seeked', onSeeked);
+                    resolve();
+                };
+                video.addEventListener('seeked', onSeeked);
+                video.currentTime = time;
+            });
+        };
 
-            const currentTime = video.currentTime;
+        // Process frames at fixed intervals
+        for (let i = 0; i < totalFrames; i++) {
+            const targetTime = i * frameInterval;
 
-            // Only process if enough time has passed since last frame
-            if (currentTime - lastProcessedTime >= minFrameInterval) {
-                const ctx = canvas.getContext('2d')!;
+            // Seek to target time
+            await seekAndWait(targetTime);
 
-                // Draw frame to canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Draw frame to canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                // Detect pose
-                const timestamp = performance.now();
-                const results = poseLandmarker.detectForVideo(video, timestamp);
+            // Detect pose
+            const timestamp = performance.now();
+            const results = poseLandmarker.detectForVideo(video, timestamp);
 
-                if (results.landmarks && results.landmarks.length > 0) {
-                    const landmarks = results.landmarks[0] as PoseLandmark[];
-                    const worldLandmarks = (results.worldLandmarks?.[0] || landmarks) as PoseLandmark[];
+            if (results.landmarks && results.landmarks.length > 0) {
+                const landmarks = results.landmarks[0] as PoseLandmark[];
+                const worldLandmarks = (results.worldLandmarks?.[0] || landmarks) as PoseLandmark[];
 
-                    // Draw skeleton on canvas (only if recording)
-                    if (shouldRecord) {
-                        drawingUtils.drawConnectors(
-                            landmarks,
-                            PoseLandmarker.POSE_CONNECTIONS,
-                            { color: '#00FF00', lineWidth: 2 }
-                        );
-                        drawingUtils.drawLandmarks(
-                            landmarks,
-                            { color: '#FF0000', fillColor: '#FF0000', radius: 3 }
-                        );
+                // Draw skeleton on canvas (only if recording)
+                if (shouldRecord) {
+                    drawingUtils.drawConnectors(
+                        landmarks,
+                        PoseLandmarker.POSE_CONNECTIONS,
+                        { color: '#00FF00', lineWidth: 2 }
+                    );
+                    drawingUtils.drawLandmarks(
+                        landmarks,
+                        { color: '#FF0000', fillColor: '#FF0000', radius: 3 }
+                    );
 
-                        // Highlight knees
-                        const rightKnee = landmarks[26]; // RIGHT_KNEE
-                        const leftKnee = landmarks[25];  // LEFT_KNEE
+                    // Highlight knees
+                    const rightKnee = landmarks[26]; // RIGHT_KNEE
+                    const leftKnee = landmarks[25];  // LEFT_KNEE
 
-                        if (rightKnee) {
-                            ctx.fillStyle = 'rgba(255, 0, 255, 0.3)';
-                            ctx.beginPath();
-                            ctx.arc(rightKnee.x * canvas.width, rightKnee.y * canvas.height, 16, 0, 2 * Math.PI);
-                            ctx.fill();
-                            ctx.fillStyle = '#FF00FF';
-                            ctx.beginPath();
-                            ctx.arc(rightKnee.x * canvas.width, rightKnee.y * canvas.height, 8, 0, 2 * Math.PI);
-                            ctx.fill();
-                        }
-
-                        if (leftKnee) {
-                            ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
-                            ctx.beginPath();
-                            ctx.arc(leftKnee.x * canvas.width, leftKnee.y * canvas.height, 16, 0, 2 * Math.PI);
-                            ctx.fill();
-                            ctx.fillStyle = '#00FFFF';
-                            ctx.beginPath();
-                            ctx.arc(leftKnee.x * canvas.width, leftKnee.y * canvas.height, 8, 0, 2 * Math.PI);
-                            ctx.fill();
-                        }
+                    if (rightKnee) {
+                        ctx.fillStyle = 'rgba(255, 0, 255, 0.3)';
+                        ctx.beginPath();
+                        ctx.arc(rightKnee.x * canvas.width, rightKnee.y * canvas.height, 16, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.fillStyle = '#FF00FF';
+                        ctx.beginPath();
+                        ctx.arc(rightKnee.x * canvas.width, rightKnee.y * canvas.height, 8, 0, 2 * Math.PI);
+                        ctx.fill();
                     }
 
-                    // Record frame
-                    recordedFrames.push({
-                        timestamp: currentTime * 1000,
-                        landmarks,
-                        worldLandmarks
-                    });
+                    if (leftKnee) {
+                        ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+                        ctx.beginPath();
+                        ctx.arc(leftKnee.x * canvas.width, leftKnee.y * canvas.height, 16, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.fillStyle = '#00FFFF';
+                        ctx.beginPath();
+                        ctx.arc(leftKnee.x * canvas.width, leftKnee.y * canvas.height, 8, 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
                 }
 
-                lastProcessedTime = currentTime;
+                // Record frame
+                recordedFrames.push({
+                    timestamp: targetTime * 1000,
+                    landmarks,
+                    worldLandmarks
+                });
             }
 
             // Update progress
-            const videoProgress = Math.round((currentTime / duration) * 100);
+            const videoProgress = Math.round((i / totalFrames) * 100);
             setProgress(videoProgress);
-
-            // Continue processing if video is still playing
-            if (!video.paused && !video.ended && currentTime < duration) {
-                requestAnimationFrame(processFrame);
-            } else {
-                processingComplete = true;
-            }
-        };
-
-        // Wait for video to complete
-        await new Promise<void>((resolve, reject) => {
-            video.onended = () => resolve();
-            video.onerror = () => reject(new Error('動画の再生中にエラーが発生しました'));
-
-            // Start playback and processing
-            video.play().then(() => {
-                requestAnimationFrame(processFrame);
-            }).catch(reject);
-
-            // Safety timeout
-            setTimeout(() => {
-                if (!processingComplete) {
-                    video.pause();
-                    resolve();
-                }
-            }, (duration + 10) * 1000);
-        });
-
-        // Ensure processing is complete
-        processingComplete = true;
-        video.pause();
+        }
 
         return recordedFrames;
     }, []);
