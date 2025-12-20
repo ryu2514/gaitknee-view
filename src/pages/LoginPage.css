@@ -78,11 +78,17 @@
 
 .login-form .form-row {
     display: flex;
-    gap: var(--space-md);
+    gap: var(--space-sm);
 }
 
 .login-form .form-group.half {
     flex: 1;
+    min-width: 0;
+}
+
+.login-form .form-group.half input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .login-form label {
