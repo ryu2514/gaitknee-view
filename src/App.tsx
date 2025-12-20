@@ -28,9 +28,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         return <Navigate to="/login" replace />;
     }
 
-    // Redirect to profile completion if profile is incomplete
-    // Skip redirect if already on the complete-profile page
-    if (!isProfileComplete && location.pathname !== '/complete-profile') {
+    // Check if user is an existing user (created before this feature was deployed)
+    // Existing users don't need to complete their profile
+    const profileRequirementDate = new Date('2024-12-21T00:00:00Z');
+    const userCreatedAt = user.created_at ? new Date(user.created_at) : new Date(0);
+    const isExistingUser = userCreatedAt < profileRequirementDate;
+
+    // Redirect to profile completion if profile is incomplete AND user is new
+    // Skip redirect if already on the complete-profile page or if existing user
+    if (!isProfileComplete && !isExistingUser && location.pathname !== '/complete-profile') {
         return <Navigate to="/complete-profile" replace />;
     }
 
