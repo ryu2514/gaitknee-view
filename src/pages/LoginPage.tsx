@@ -5,7 +5,7 @@ import './LoginPage.css';
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const { signIn, signUp, signInWithGoogle } = useAuth();
+    const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
 
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
@@ -16,6 +16,22 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
+
+    const handleForgotPassword = async () => {
+        if (!email) {
+            setError('メールアドレスを入力してください');
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        const { error } = await resetPassword(email);
+        if (error) {
+            setError('パスワードリセットメールの送信に失敗しました');
+        } else {
+            setMessage('パスワードリセットメールを送信しました。メールをご確認ください。');
+        }
+        setLoading(false);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -118,6 +134,16 @@ export default function LoginPage() {
                                 placeholder="6文字以上"
                                 disabled={loading}
                             />
+                            {isLogin && (
+                                <button
+                                    type="button"
+                                    className="forgot-password-link"
+                                    onClick={handleForgotPassword}
+                                    disabled={loading}
+                                >
+                                    パスワードを忘れた場合
+                                </button>
+                            )}
                         </div>
 
                         {!isLogin && (

@@ -217,3 +217,26 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+.forgot-password-link {
+    display: block;
+    margin-top: var(--space-sm);
+    padding: 0;
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: right;
+    transition: color 0.2s ease;
+}
+
+.forgot-password-link:hover:not(:disabled) {
+    color: #1e3a5f;
+    text-decoration: underline;
+}
+
+.forgot-password-link:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
