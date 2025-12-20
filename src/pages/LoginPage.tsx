@@ -150,7 +150,7 @@ export default function LoginPage() {
                             <>
                                 <div className="form-row">
                                     <div className="form-group half">
-                                        <label htmlFor="lastName">姓</label>
+                                        <label htmlFor="lastName">姓 <span style={{ color: '#ef4444' }}>*</span></label>
                                         <input
                                             type="text"
                                             id="lastName"
@@ -158,10 +158,11 @@ export default function LoginPage() {
                                             onChange={(e) => setLastName(e.target.value)}
                                             placeholder="山田"
                                             disabled={loading}
+                                            required
                                         />
                                     </div>
                                     <div className="form-group half">
-                                        <label htmlFor="firstName">名</label>
+                                        <label htmlFor="firstName">名 <span style={{ color: '#ef4444' }}>*</span></label>
                                         <input
                                             type="text"
                                             id="firstName"
@@ -169,6 +170,7 @@ export default function LoginPage() {
                                             onChange={(e) => setFirstName(e.target.value)}
                                             placeholder="太郎"
                                             disabled={loading}
+                                            required
                                         />
                                     </div>
                                 </div>
