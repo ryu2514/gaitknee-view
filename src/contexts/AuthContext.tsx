@@ -10,12 +10,22 @@ interface UsageInfo {
     bonusCredits: number;
 }
 
+interface Profile {
+    id: string;
+    last_name: string | null;
+    first_name: string | null;
+}
+
 interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
     usage: UsageInfo | null;
+    profile: Profile | null;
+    profileLoading: boolean;
+    isProfileComplete: boolean;
     refreshUsage: () => Promise<void>;
+    refreshProfile: () => Promise<void>;
     signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
     signUp: (email: string, password: string, lastName?: string, firstName?: string) => Promise<{ error: Error | null }>;
     signInWithGoogle: () => Promise<{ error: Error | null }>;
@@ -30,6 +40,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [usage, setUsage] = useState<UsageInfo | null>(null);
+    const [profile, setProfile] = useState<Profile | null>(null);
+    const [profileLoading, setProfileLoading] = useState(true);
+
+    const isProfileComplete = Boolean(profile?.last_name && profile?.first_name);
+
+    const refreshProfile = async () => {
+        if (!user) {
+            setProfile(null);
+            setProfileLoading(false);
+            return;
+        }
+
+        setProfileLoading(true);
+        try {
+            const { data } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            setProfile(data);
+        } catch (err) {
+            setProfile(null);
+        } finally {
+            setProfileLoading(false);
+        }
+    };
 
     const refreshUsage = async () => {
         if (!user) {
@@ -66,9 +103,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => subscription.unsubscribe();
     }, []);
 
-    // Refresh usage when user changes
+    // Refresh usage and profile when user changes
     useEffect(() => {
         refreshUsage();
+        refreshProfile();
     }, [user]);
 
     const signIn = async (email: string, password: string) => {
@@ -121,7 +159,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             session,
             loading,
             usage,
+            profile,
+            profileLoading,
+            isProfileComplete,
             refreshUsage,
+            refreshProfile,
             signIn,
             signUp,
             signInWithGoogle,

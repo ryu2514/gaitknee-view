@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import HomePage from './pages/HomePage'
 import RecordPage from './pages/RecordPage'
@@ -8,12 +8,14 @@ import HistoryPage from './pages/HistoryPage'
 import ComparePage from './pages/ComparePage'
 import LoginPage from './pages/LoginPage'
 import PurchasePage from './pages/PurchasePage'
+import CompleteProfilePage from './pages/CompleteProfilePage'
 
 // Protected Route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
+    const { user, loading, profileLoading, isProfileComplete } = useAuth();
+    const location = useLocation();
 
-    if (loading) {
+    if (loading || profileLoading) {
         return (
             <div className="loading-screen">
                 <div className="spinner"></div>
@@ -26,6 +28,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         return <Navigate to="/login" replace />;
     }
 
+    // Redirect to profile completion if profile is incomplete
+    // Skip redirect if already on the complete-profile page
+    if (!isProfileComplete && location.pathname !== '/complete-profile') {
+        return <Navigate to="/complete-profile" replace />;
+    }
+
     return <>{children}</>;
 }
 
@@ -33,6 +41,7 @@ function AppRoutes() {
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/complete-profile" element={<CompleteProfilePage />} />
             <Route path="/" element={
                 <ProtectedRoute>
                     <HomePage />
@@ -81,3 +90,4 @@ function App() {
 }
 
 export default App
+
