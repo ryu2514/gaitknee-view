@@ -30,7 +30,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     // Check if user is an existing user (created before this feature was deployed)
     // Existing users don't need to complete their profile
-    const profileRequirementDate = new Date('2024-12-21T00:00:00Z');
+    const profileRequirementDate = new Date('2025-12-21T00:00:00Z');
     const userCreatedAt = user.created_at ? new Date(user.created_at) : new Date(0);
     const isExistingUser = userCreatedAt < profileRequirementDate;
 
