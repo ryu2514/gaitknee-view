@@ -283,15 +283,18 @@ function calculateThrustMetrics(
         }
     }
 
-    // Calculate amplitude from stance phase data only
+    // Apply smoothing to the waveform for more stable results
+    const smoothedWaveform = smoothSignal(waveform, 5);
+
+    // Calculate amplitude from stance phase data only (using smoothed waveform)
     let maxAmplitude = 0;
     let maxDisplacement = 0;
 
     for (const phase of phases) {
         const phaseData: number[] = [];
-        for (let i = phase.startFrame; i <= phase.endFrame && i < waveform.length; i++) {
-            if (waveform[i] > 0) {  // Skip zeros (swing phase markers)
-                phaseData.push(waveform[i]);
+        for (let i = phase.startFrame; i <= phase.endFrame && i < smoothedWaveform.length; i++) {
+            if (smoothedWaveform[i] > 0) {  // Skip zeros (swing phase markers)
+                phaseData.push(smoothedWaveform[i]);
             }
         }
 
@@ -325,7 +328,7 @@ function calculateThrustMetrics(
     const result = {
         amplitude: Math.round(maxAmplitude * 10) / 10,
         maxDisplacement: Math.round(maxDisplacement * 10) / 10,
-        waveform,
+        waveform: smoothedWaveform,
         timePoints,
         severity
     };
