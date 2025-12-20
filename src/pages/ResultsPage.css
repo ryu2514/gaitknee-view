@@ -696,7 +696,16 @@
         gap: var(--space-sm);
     }
 
+    .score-card.score-card-right {
+        order: 1;
+    }
+
+    .score-card.score-card-left {
+        order: 2;
+    }
+
     .score-card.score-card-asymmetry {
+        order: 3;
         grid-column: 1 / -1;
     }
 
