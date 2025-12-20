@@ -692,8 +692,12 @@
     }
 
     .score-cards {
-        grid-template-columns: 1fr;
-        gap: var(--space-md);
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-sm);
+    }
+
+    .score-card.score-card-asymmetry {
+        grid-column: 1 / -1;
     }
 
     .score-card {
