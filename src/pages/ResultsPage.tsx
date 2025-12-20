@@ -70,10 +70,62 @@ export default function ResultsPage() {
         try {
             const html2canvas = (await import('html2canvas')).default;
             const canvas = await html2canvas(container as HTMLElement);
-            const link = document.createElement('a');
-            link.download = `gaitknee-result-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+
+            // Check if mobile device
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // For mobile: try Web Share API first, then open in new tab
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert('画像の生成に失敗しました');
+                        return;
+                    }
+
+                    const file = new File([blob], `gaitknee-result-${Date.now()}.png`, { type: 'image/png' });
+
+                    // Try Web Share API
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'GaitKnee-View 解析結果',
+                            });
+                            return;
+                        } catch (shareError: unknown) {
+                            // User cancelled share or share failed, try opening in new tab
+                            if ((shareError as Error).name !== 'AbortError') {
+                                console.log('Share cancelled or failed, opening in new tab');
+                            }
+                        }
+                    }
+
+                    // Fallback: open image in new tab for long-press save
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const newWindow = window.open();
+                    if (newWindow) {
+                        newWindow.document.write(`
+                            <html>
+                                <head><title>GaitKnee-View 解析結果</title></head>
+                                <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;">
+                                    <div style="text-align:center;">
+                                        <p style="margin-bottom:16px;color:#333;">画像を長押しして保存してください</p>
+                                        <img src="${dataUrl}" style="max-width:100%;height:auto;" />
+                                    </div>
+                                </body>
+                            </html>
+                        `);
+                    } else {
+                        alert('ポップアップがブロックされました。ブロックを解除してください。');
+                    }
+                }, 'image/png');
+            } else {
+                // For desktop: use download link
+                const link = document.createElement('a');
+                link.download = `gaitknee-result-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
         } catch (error) {
             console.error('Failed to save image:', error);
             alert('画像の保存に失敗しました');
