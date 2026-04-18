@@ -1,0 +1,16 @@
+node_modules
+.vercel
+
+# Secrets / local config
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+dist
+functions/lib
+
+# Firebase
+.firebase
+firebase-debug.log
+firebase-debug.*.log
