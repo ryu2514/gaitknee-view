@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getSession, type SavedSession } from '../utils/sessionStorage';
+import LoadingScreen from '../components/LoadingScreen';
 import './ComparePage.css';
 
 export default function ComparePage() {
@@ -56,14 +57,7 @@ export default function ComparePage() {
     };
 
     if (loading || !sessions[0] || !sessions[1]) {
-        return (
-            <div className="compare-page">
-                <div className="loading-container">
-                    <div className="spinner" />
-                    <p>読み込み中...</p>
-                </div>
-            </div>
-        );
+        return <LoadingScreen message="比較データを読み込み中" />;
     }
 
     return (

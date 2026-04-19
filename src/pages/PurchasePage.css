@@ -8,7 +8,7 @@
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-lg);
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+    background: #1e3a5f;
     color: white;
 }
 
@@ -59,9 +59,9 @@
     gap: var(--space-md);
     padding: var(--space-lg);
     background: white;
-    border-radius: 16px;
+    border-radius: 8px;
     margin-bottom: var(--space-xl);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .credits-label {
@@ -71,11 +71,8 @@
 
 .credits-value {
     font-size: 2rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 800;
+    color: #38a169;
 }
 
 .packs-grid {
@@ -87,23 +84,17 @@
 
 .pack-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: var(--space-xl);
     text-align: center;
     position: relative;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.pack-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .pack-card.popular {
-    border-color: #10b981;
-    background: linear-gradient(180deg, #f0fdf4 0%, white 30%);
+    border-color: #38a169;
+    border-width: 2px;
 }
 
 .popular-badge {
@@ -111,10 +102,10 @@
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #38a169;
     color: white;
-    padding: 4px 16px;
-    border-radius: 20px;
+    padding: 4px 12px;
+    border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 700;
 }
@@ -168,30 +159,33 @@
 .purchase-btn {
     width: 100%;
     padding: var(--space-md);
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+    background: #1e3a5f;
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background 0.2s ease;
 }
 
 .purchase-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(30, 58, 95, 0.3);
+    background: #2d5a87;
 }
 
 .pack-card.popular .purchase-btn {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #38a169;
+}
+
+.pack-card.popular .purchase-btn:hover {
+    background: #2f855a;
 }
 
 .purchase-notes {
     background: white;
-    border-radius: 16px;
+    border-radius: 8px;
     padding: var(--space-lg);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .purchase-notes h3 {

@@ -1,6 +1,16 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase, canAnalyze, FREE_MONTHLY_LIMIT } from '../lib/supabase';
+import { User } from 'firebase/auth';
+import {
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut as firebaseSignOut,
+    signInWithPopup,
+    GoogleAuthProvider,
+    sendPasswordResetEmail,
+} from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import { canAnalyze, getProfile, upsertProfile, FREE_MONTHLY_LIMIT, type Profile } from '../lib/db';
 
 interface UsageInfo {
     count: number;
@@ -10,15 +20,8 @@ interface UsageInfo {
     bonusCredits: number;
 }
 
-interface Profile {
-    id: string;
-    last_name: string | null;
-    first_name: string | null;
-}
-
 interface AuthContextType {
     user: User | null;
-    session: Session | null;
     loading: boolean;
     usage: UsageInfo | null;
     profile: Profile | null;
@@ -35,9 +38,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const googleProvider = new GoogleAuthProvider();
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [usage, setUsage] = useState<UsageInfo | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -54,12 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setProfileLoading(true);
         try {
-            const { data } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
+            const data = await getProfile(user.uid);
             setProfile(data);
         } catch (err) {
             setProfile(null);
@@ -74,33 +73,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        const result = await canAnalyze(user.id);
+        const result = await canAnalyze(user.uid);
 
         setUsage({
             count: FREE_MONTHLY_LIMIT - Math.max(0, result.remaining - result.bonusCredits),
             remaining: result.remaining,
             isPremium: result.isPremium,
             canAnalyze: result.allowed,
-            bonusCredits: result.bonusCredits
+            bonusCredits: result.bonusCredits,
         });
     };
 
     useEffect(() => {
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser) {
+                setProfileLoading(true);
+            }
+            setUser(firebaseUser);
             setLoading(false);
         });
 
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
+        return () => unsubscribe();
     }, []);
 
     // Refresh usage and profile when user changes
@@ -110,53 +103,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [user]);
 
     const signIn = async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        return { error: error as Error | null };
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            return { error: null };
+        } catch (err) {
+            return { error: err as Error };
+        }
     };
 
     const signUp = async (email: string, password: string, lastName?: string, firstName?: string) => {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        try {
+            const credential = await createUserWithEmailAndPassword(auth, email, password);
 
-        // If signup successful and we have name data, create profile
-        if (!error && data.user && (lastName || firstName)) {
-            await supabase.from('profiles').insert({
-                id: data.user.id,
-                last_name: lastName || null,
-                first_name: firstName || null
-            });
-        }
-
-        return { error: error as Error | null };
-    };
-
-    const signOut = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
-        setSession(null);
-        setUsage(null);
-    };
-
-    const signInWithGoogle = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin
+            // If signup successful and we have name data, create profile
+            if (credential.user && (lastName || firstName)) {
+                await upsertProfile(credential.user.uid, {
+                    last_name: lastName || '',
+                    first_name: firstName || '',
+                });
             }
-        });
-        return { error: error as Error | null };
+
+            return { error: null };
+        } catch (err) {
+            return { error: err as Error };
+        }
+    };
+
+    const handleSignOut = async () => {
+        await firebaseSignOut(auth);
+        setUser(null);
+        setUsage(null);
+        setProfile(null);
+    };
+
+    const handleSignInWithGoogle = async () => {
+        try {
+            await signInWithPopup(auth, googleProvider);
+            return { error: null };
+        } catch (err) {
+            return { error: err as Error };
+        }
     };
 
     const resetPassword = async (email: string) => {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/login`
-        });
-        return { error: error as Error | null };
+        try {
+            await sendPasswordResetEmail(auth, email);
+            return { error: null };
+        } catch (err) {
+            return { error: err as Error };
+        }
     };
 
     return (
         <AuthContext.Provider value={{
             user,
-            session,
             loading,
             usage,
             profile,
@@ -166,9 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             refreshProfile,
             signIn,
             signUp,
-            signInWithGoogle,
+            signInWithGoogle: handleSignInWithGoogle,
             resetPassword,
-            signOut
+            signOut: handleSignOut,
         }}>
             {children}
         </AuthContext.Provider>

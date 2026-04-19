@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gaitknee-view-v1';
+const CACHE_NAME = 'gaitknee-view-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -47,30 +47,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Navigation requests (HTML pages) - always network first
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Other requests - network first, fallback to cache
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached version
-        return cachedResponse;
-      }
-
-      // Fetch from network
-      return fetch(event.request).then((response) => {
-        // Don't cache if not a valid response
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-
-        // Clone the response
+    fetch(event.request).then((response) => {
+      if (response && response.status === 200 && response.type === 'basic') {
         const responseToCache = response.clone();
-
-        // Cache the fetched response
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseToCache);
         });
-
-        return response;
-      });
-    })
+      }
+      return response;
+    }).catch(() => caches.match(event.request))
   );
 });

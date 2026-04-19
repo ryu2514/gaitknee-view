@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllSessions, deleteSession, type SavedSession } from '../utils/sessionStorage';
+import LoadingScreen from '../components/LoadingScreen';
 import './HistoryPage.css';
 
 export default function HistoryPage() {
@@ -66,14 +67,7 @@ export default function HistoryPage() {
     };
 
     if (loading) {
-        return (
-            <div className="history-page">
-                <div className="loading-container">
-                    <div className="spinner" />
-                    <p>読み込み中...</p>
-                </div>
-            </div>
-        );
+        return <LoadingScreen message="履歴を読み込み中" />;
     }
 
     return (

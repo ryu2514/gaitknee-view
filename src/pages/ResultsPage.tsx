@@ -4,6 +4,7 @@ import { useGaitAnalysis } from '../hooks/useGaitAnalysis';
 import { saveSession } from '../utils/sessionStorage';
 import type { FrameData } from '../types/pose';
 import type { GaitCycle } from '../types/gait';
+import LoadingScreen from '../components/LoadingScreen';
 import './ResultsPage.css';
 
 export default function ResultsPage() {
@@ -88,25 +89,21 @@ export default function ResultsPage() {
                 // For mobile: open image in new tab for long-press save
                 const newWindow = window.open('', '_blank');
                 if (newWindow) {
-                    newWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                            <head>
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <title>GaitKnee-View 解析結果</title>
-                                <style>
-                                    body { margin: 0; padding: 20px; background: #f0f0f0; text-align: center; }
-                                    p { color: #333; margin-bottom: 16px; font-family: sans-serif; }
-                                    img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-                                </style>
-                            </head>
-                            <body>
-                                <p>📱 画像を長押しして保存してください</p>
-                                <img src="${dataUrl}" />
-                            </body>
-                        </html>
-                    `);
-                    newWindow.document.close();
+                    const d = newWindow.document;
+                    d.title = 'GaitKnee-View 解析結果';
+                    const meta = d.createElement('meta');
+                    meta.name = 'viewport';
+                    meta.content = 'width=device-width, initial-scale=1.0';
+                    d.head.appendChild(meta);
+                    const style = d.createElement('style');
+                    style.textContent = `body{margin:0;padding:20px;background:#f0f0f0;text-align:center}p{color:#333;margin-bottom:16px;font-family:sans-serif}img{max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2)}`;
+                    d.head.appendChild(style);
+                    const p = d.createElement('p');
+                    p.textContent = '📱 画像を長押しして保存してください';
+                    const img = d.createElement('img');
+                    img.src = dataUrl;
+                    d.body.appendChild(p);
+                    d.body.appendChild(img);
                 } else {
                     // Fallback: create a link
                     const link = document.createElement('a');
@@ -208,14 +205,7 @@ export default function ResultsPage() {
     };
 
     if (!analysis) {
-        return (
-            <div className="results-page">
-                <div className="loading-container">
-                    <div className="spinner" />
-                    <p>解析中...</p>
-                </div>
-            </div>
-        );
+        return <LoadingScreen message="解析中" subMessage="データを処理しています" />;
     }
 
     // Helper function to determine severity from amplitude
@@ -272,11 +262,6 @@ export default function ResultsPage() {
                             </div>
                             <div className="score-main">
                                 <div className={`score-badge score-badge-${displayValues.rightSeverity}`}>
-                                    <div className="severity-icon">
-                                        {displayValues.rightSeverity === 'high' && '⚠️'}
-                                        {displayValues.rightSeverity === 'moderate' && '⚡'}
-                                        {displayValues.rightSeverity === 'low' && '✓'}
-                                    </div>
                                     <div className="severity-label">{getSeverityLabel(displayValues.rightSeverity)}</div>
                                 </div>
                                 <div className="amplitude-display">
@@ -300,11 +285,6 @@ export default function ResultsPage() {
                             </div>
                             <div className="score-main">
                                 <div className={`score-badge score-badge-${displayValues.leftSeverity}`}>
-                                    <div className="severity-icon">
-                                        {displayValues.leftSeverity === 'high' && '⚠️'}
-                                        {displayValues.leftSeverity === 'moderate' && '⚡'}
-                                        {displayValues.leftSeverity === 'low' && '✓'}
-                                    </div>
                                     <div className="severity-label">{getSeverityLabel(displayValues.leftSeverity)}</div>
                                 </div>
                                 <div className="amplitude-display">

@@ -5,10 +5,11 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { analyzeGait } from '../hooks/useGaitAnalysis';
 import { useAuth, FREE_MONTHLY_LIMIT } from '../contexts/AuthContext';
-import { canAnalyze, incrementUsage } from '../lib/supabase';
+import { consumeCredit } from '../lib/db';
 import type { PoseLandmark } from '../types/pose';
 import type { FrameData } from '../types/pose';
 import type { GaitAnalysisResult } from '../types/gait';
+import LoadingScreen from '../components/LoadingScreen';
 import './UploadPage.css';
 
 export default function UploadPage() {
@@ -310,11 +311,17 @@ export default function UploadPage() {
             return;
         }
 
-        // Check usage limit before analyzing
+        // サーバー側でアトミックに利用回数を消費する（無制限プランはスキップされる）
         if (user) {
-            const usageCheck = await canAnalyze(user.id);
-            if (!usageCheck.allowed) {
-                setError(`今月の無料利用回数（${FREE_MONTHLY_LIMIT}回）を使い切りました。プレミアムプランにアップグレードして無制限でご利用ください。`);
+            try {
+                await consumeCredit();
+            } catch (err) {
+                const msg = err instanceof Error ? err.message : '';
+                if (msg.includes('resource-exhausted') || msg.includes('利用回数')) {
+                    setError(`今月の無料利用回数（${FREE_MONTHLY_LIMIT}回）を使い切りました。クレジットを購入するか、プレミアムプランにアップグレードしてください。`);
+                } else {
+                    setError('利用回数の確認に失敗しました。しばらく経ってから再度お試しください。');
+                }
                 return;
             }
         }
@@ -486,14 +493,14 @@ export default function UploadPage() {
                 }
             }));
 
-            // Increment usage count after successful analysis
+            // クレジットは解析前に consumeCredit で消費済みなので、ここでは残量表示のみ更新
             if (user) {
-                await incrementUsage(user.id);
                 await refreshUsage();
             }
 
             setIsAnalyzing(false);
             setCurrentTrial(0);
+            navigate('/results');
 
         } catch (err) {
             console.error('[UploadPage] Analysis error:', err);
@@ -563,29 +570,21 @@ export default function UploadPage() {
                         </div>
 
                         {isAnalyzing && (
-                            <div className="progress-container">
-                                <div className="progress-bar">
-                                    <div
-                                        className="progress-fill"
-                                        style={{ width: `${progress}%` }}
-                                    />
-                                </div>
-                                <span className="progress-text">
-                                    {currentTrial > 0 ? `試行 ${currentTrial}/${totalTrials} ` : ''}
-                                    解析中... {progress}%
-                                </span>
+                            <div className="inline-loading">
+                                <LoadingScreen
+                                    message="解析中"
+                                    progress={progress}
+                                    trial={currentTrial > 0 ? { current: currentTrial, total: totalTrials } : undefined}
+                                />
                             </div>
                         )}
 
                         {isConverting && (
-                            <div className="progress-container">
-                                <div className="progress-bar">
-                                    <div
-                                        className="progress-fill"
-                                        style={{ width: `${conversionProgress}%` }}
-                                    />
-                                </div>
-                                <span className="progress-text">MP4に変換中... {conversionProgress}%</span>
+                            <div className="inline-loading">
+                                <LoadingScreen
+                                    message="MP4に変換中"
+                                    progress={conversionProgress}
+                                />
                             </div>
                         )}
 

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../lib/firebase';
 import { CREDIT_PACKS, type CreditPack } from '../lib/stripe';
 import './PurchasePage.css';
 
@@ -29,27 +30,22 @@ export default function PurchasePage() {
         setPurchasing(pack.id);
 
         try {
-            const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-                body: {
-                    priceId: pack.priceId,
-                    credits: pack.credits,
-                    userId: user.id,
-                    userEmail: user.email,
-                },
+            const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
+            const result = await createCheckoutSession({
+                priceId: pack.priceId,
+                credits: pack.credits,
+                userId: user.uid,
+                userEmail: user.email,
             });
 
-            if (error) {
-                console.error('Checkout error:', error);
-                alert('購入処理でエラーが発生しました。もう一度お試しください。');
-                return;
-            }
+            const data = result.data as { url?: string };
 
             if (data?.url) {
                 window.location.href = data.url;
             }
         } catch (err) {
             console.error('Purchase error:', err);
-            alert('購入処理でエラーが発生しました。');
+            alert('購入処理でエラーが発生しました。もう一度お試しください。');
         } finally {
             setPurchasing(null);
         }

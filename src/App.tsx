@@ -9,6 +9,7 @@ import ComparePage from './pages/ComparePage'
 import LoginPage from './pages/LoginPage'
 import PurchasePage from './pages/PurchasePage'
 import CompleteProfilePage from './pages/CompleteProfilePage'
+import LoadingScreen from './components/LoadingScreen'
 
 // Protected Route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -16,29 +17,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const location = useLocation();
 
     if (loading || profileLoading) {
-        return (
-            <div className="loading-screen">
-                <div className="spinner"></div>
-                <p>読み込み中...</p>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     if (!user) {
         return <Navigate to="/login" replace />;
     }
 
-    // Check if user is an existing user (created before this feature was deployed)
-    // Existing users don't need to complete their profile
-    const profileRequirementDate = new Date('2025-12-21T00:00:00Z');
-    const userCreatedAt = user.created_at ? new Date(user.created_at) : new Date(0);
-    const isExistingUser = userCreatedAt < profileRequirementDate;
-
-    // Redirect to profile completion if profile is incomplete AND user is new
-    // Skip redirect if already on the complete-profile page or if existing user
-    if (!isProfileComplete && !isExistingUser && location.pathname !== '/complete-profile') {
-        return <Navigate to="/complete-profile" replace />;
-    }
+    // Profile completion is optional - don't block app access
 
     return <>{children}</>;
 }

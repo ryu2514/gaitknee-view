@@ -141,31 +141,22 @@
     opacity: 0.5;
 }
 
-.progress-container {
+.inline-loading {
     margin-top: var(--space-lg);
 }
 
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background: var(--color-border);
-    border-radius: var(--radius-full);
-    overflow: hidden;
+.inline-loading .loading-screen {
+    min-height: auto;
+    padding: var(--space-lg) 0;
 }
 
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--color-accent), var(--color-primary));
-    border-radius: var(--radius-full);
-    transition: width 0.2s ease;
+.inline-loading .loading-content {
+    padding: var(--space-md);
 }
 
-.progress-text {
-    display: block;
-    text-align: center;
-    margin-top: var(--space-sm);
-    font-size: 0.9rem;
-    color: var(--color-text-light);
+.inline-loading .knee-animation {
+    width: 64px;
+    height: 90px;
 }
 
 .error-message {
@@ -216,31 +207,29 @@
 }
 
 .download-video-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #1e3a5f;
     color: white;
 }
 
 .download-video-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: #2d5a87;
 }
 
 .view-results-btn {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #38a169;
     color: white;
 }
 
 .view-results-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+    background: #2f855a;
 }
 
 .download-video-btn.secondary {
-    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    background: #64748b;
 }
 
 .download-video-btn.secondary:hover {
-    box-shadow: 0 4px 12px rgba(113, 128, 150, 0.4);
+    background: #475569;
 }
 
 .download-hint {

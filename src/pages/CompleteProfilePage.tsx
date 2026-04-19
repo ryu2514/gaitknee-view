@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { upsertProfile } from '../lib/db';
 import './LoginPage.css';
 
 export default function CompleteProfilePage() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, refreshProfile } = useAuth();
 
     const [lastName, setLastName] = useState('');
     const [firstName, setFirstName] = useState('');
@@ -30,37 +30,14 @@ export default function CompleteProfilePage() {
         setLoading(true);
 
         try {
-            // Check if profile exists
-            const { data: existingProfile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+            const { error: upsertError } = await upsertProfile(user.uid, {
+                last_name: lastName.trim(),
+                first_name: firstName.trim(),
+            });
 
-            if (existingProfile) {
-                // Update existing profile
-                const { error: updateError } = await supabase
-                    .from('profiles')
-                    .update({
-                        last_name: lastName.trim(),
-                        first_name: firstName.trim()
-                    })
-                    .eq('id', user.id);
+            if (upsertError) throw upsertError;
 
-                if (updateError) throw updateError;
-            } else {
-                // Create new profile
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: user.id,
-                        last_name: lastName.trim(),
-                        first_name: firstName.trim()
-                    });
-
-                if (insertError) throw insertError;
-            }
-
+            await refreshProfile();
             navigate('/');
         } catch (err: any) {
             console.error('Profile update error:', err);

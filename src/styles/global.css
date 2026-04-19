@@ -23,13 +23,13 @@
     /* Border Radius */
     --radius-sm: 4px;
     --radius-md: 8px;
-    --radius-lg: 16px;
+    --radius-lg: 8px;
     --radius-full: 9999px;
 
     /* Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.08);
 
     /* Touch Target */
     --touch-target: 44px;
@@ -103,13 +103,12 @@ button:disabled {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
+    background: #1e3a5f;
     color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    background: #2d5a87;
 }
 
 .btn-secondary {
@@ -151,18 +150,18 @@ button:disabled {
 }
 
 .badge-low {
-    background: #c6f6d5;
-    color: #22543d;
+    background: #d1fae5;
+    color: #065f46;
 }
 
 .badge-moderate {
-    background: #fefcbf;
-    color: #744210;
+    background: #fef3c7;
+    color: #92400e;
 }
 
 .badge-high {
-    background: #fed7d7;
-    color: #822727;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 /* Animations */

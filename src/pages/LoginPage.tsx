@@ -75,13 +75,24 @@ export default function LoginPage() {
             } else {
                 const { error } = await signUp(email, password, lastName, firstName);
                 if (error) {
-                    setError(error.message);
+                    if (error.message.toLowerCase().includes('fetch')) {
+                        setError('通信エラーが発生しました。広告ブロッカーを無効にするか、Googleログインをお試しください。');
+                    } else if (error.message.includes('email-already-in-use')) {
+                        setError('このメールアドレスは既に登録されています。ログインしてください。');
+                    } else {
+                        setError(error.message);
+                    }
                 } else {
-                    setMessage('確認メールを送信しました。メールを確認してアカウントを有効化してください。');
+                    navigate('/');
                 }
             }
         } catch (err) {
-            setError('エラーが発生しました。もう一度お試しください。');
+            const msg = (err as Error).message || '';
+            if (msg.toLowerCase().includes('fetch')) {
+                setError('通信エラーが発生しました。広告ブロッカーを無効にするか、Googleログインをお試しください。');
+            } else {
+                setError('エラーが発生しました。もう一度お試しください。');
+            }
         } finally {
             setLoading(false);
         }
@@ -204,7 +215,14 @@ export default function LoginPage() {
                         className="google-btn"
                         onClick={async () => {
                             setLoading(true);
-                            await signInWithGoogle();
+                            setError(null);
+                            const { error } = await signInWithGoogle();
+                            if (error) {
+                                setError('Googleログインに失敗しました。もう一度お試しください。');
+                                setLoading(false);
+                            } else {
+                                navigate('/');
+                            }
                         }}
                         disabled={loading}
                     >
